@@ -48,3 +48,55 @@ class AppRoutes {
   //   );
   // }
 }
+
+
+
+
+ // Container(
+            //   height: 150,
+            //   decoration: BoxDecoration(
+            //     color: Colors.blue[50],
+            //     borderRadius: BorderRadius.circular(10),
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         flex: 2,
+            //         child: Padding(
+            //           padding: const EdgeInsets.all(12.0),
+            //           child: Column(
+            //             crossAxisAlignment: CrossAxisAlignment.start,
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             children: [
+            //               Text(
+            //                 "Paragon Kitchen - Lulu Mall",
+            //                 style: TextStyle(
+            //                     fontSize: 16, fontWeight: FontWeight.bold),
+            //               ),
+            //               SizedBox(height: 8),
+            //               Text(
+            //                 "Flat 50% Off!",
+            //                 style: TextStyle(fontSize: 22, color: Colors.blue),
+            //               ),
+            //               SizedBox(height: 8),
+            //               ElevatedButton(
+            //                 onPressed: () {},
+            //                 child: Text("KNOW MORE"),
+            //                 style: ElevatedButton.styleFrom(
+            //                   backgroundColor: Colors.blue,
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //       Expanded(
+            //         flex: 1,
+            //         child: Image.network(
+            //           "https://via.placeholder.com/150", // Replace with your image
+            //           fit: BoxFit.cover,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),

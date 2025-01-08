@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/services.dart';
+import 'package:product_listing_app/screens/homescreen.dart';
+import 'dart:convert';
 import 'package:product_listing_app/screens/otpscreen.dart';
 import 'package:product_listing_app/screens/username.dart';
 
@@ -10,6 +14,9 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController countrycodeController =
       TextEditingController(text: '+91');
+  String get phoneNumberdetails =>
+      countrycodeController.text + '-' + phoneController.text;
+  String get phoneNumber => phoneController.text;
 
   @override
   Widget build(BuildContext context) {
@@ -88,11 +95,13 @@ class LoginScreen extends StatelessWidget {
                   height: 55.0,
                   child: ElevatedButton(
                     onPressed: () {
-                      String phoneNumber = countrycodeController.text +
-                          '-' +
-                          phoneController.text;
                       if (phoneNumber.isNotEmpty) {
-                        Get.to(() => OtpScreen(phonenumber: phoneNumber));
+                        verifyUser(phoneNumber, phoneNumberdetails).then((_) {
+                          print('Verification completed successfully');
+                        }).catchError((error) {
+                          Get.snackbar('Error', 'Failed to verify user');
+                          print('Verification failed: $error');
+                        });
                       } else {
                         Get.snackbar('Error', 'Phone number is invalid');
                       }
@@ -143,5 +152,50 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Future<void> verifyUser(String phoneNumber, String phoneNumberdetails) async {
+  final url = Uri.parse('https://admin.kushinirestaurant.com/api/verify/');
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'phone_number': phoneNumber,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data != null && data.containsKey('otp') && data.containsKey('user')) {
+        final otp = data['otp'];
+        final user = data['user'];
+
+        print('Login Successful!');
+        print('OTP: $otp');
+        print('User: $user');
+
+        if (user == true) {
+          Get.to(() => HomePage());
+        } else {
+          Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: otp));
+        }
+      } else {
+        print('Unexpected response structure: ${response.body}');
+        Get.snackbar(
+            'Error', 'Failed to verify user due to incomplete response');
+      }
+    } else {
+      print('Login failed with status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      Get.snackbar('Error', 'Failed to verify user');
+    }
+  } catch (e) {
+    print('Error occurred during login: $e');
+    Get.snackbar('Error', 'An unexpected error occurred');
   }
 }

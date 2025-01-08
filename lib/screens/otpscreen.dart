@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:flutter/gestures.dart';
+import 'package:product_listing_app/screens/homescreen.dart';
 import 'package:product_listing_app/screens/username.dart';
 
 class OtpScreen extends StatelessWidget {
@@ -13,16 +14,11 @@ class OtpScreen extends StatelessWidget {
   final TextEditingController _otpController3 = TextEditingController();
   final TextEditingController _otpController4 = TextEditingController();
 
-  String phonenumber;
-  OtpScreen({super.key, required this.phonenumber}) {
-    print(phonenumber);
-  }
-  void _combineOtp() {
-    String otp = _otpController1.text +
-        _otpController2.text +
-        _otpController3.text +
-        _otpController4.text;
-    print("Combined OTP: $otp");
+  final String phonenumber;
+  final String otp;
+  OtpScreen({super.key, required this.phonenumber, required this.otp}) {
+    print('phonenumber is $phonenumber');
+    print('otp is $otp');
   }
 
   @override
@@ -105,6 +101,7 @@ class OtpScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              Text("otp is $otp"),
               SizedBox(
                 height: 60,
               ),
@@ -165,7 +162,16 @@ class OtpScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _combineOtp,
+                  onPressed: () {
+                    if (textotp == otp) {
+                      Get.to(() =>
+                          UsernameScreen(phone: phonenumber, otpCode: otp));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Invalid OTP!')),
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(172, 82, 80, 223),
                     shape: RoundedRectangleBorder(
@@ -182,7 +188,7 @@ class OtpScreen extends StatelessWidget {
                 height: 55.0,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.to(() => UsernameScreen());
+                    Get.to(() => HomePage());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -267,4 +273,10 @@ class OtpScreen extends StatelessWidget {
       ),
     );
   }
+
+  String get textotp =>
+      _otpController1.text +
+      _otpController2.text +
+      _otpController3.text +
+      _otpController4.text;
 }
