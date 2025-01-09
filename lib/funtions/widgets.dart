@@ -23,7 +23,7 @@ class ProductCard extends StatelessWidget {
   final double discount;
   final String imageUrl;
   final String avgRating;
-  final RxBool inWishlist; // Reactive field for wishlist state
+  final RxBool inWishlist;
 
   ProductCard({
     required this.name,
@@ -31,20 +31,23 @@ class ProductCard extends StatelessWidget {
     required this.discount,
     required this.imageUrl,
     required this.avgRating,
-    bool inWishlist = false,
-  }) : inWishlist = RxBool(inWishlist);
+    bool initialWishlistState = false,
+  }) : inWishlist = RxBool(initialWishlistState);
 
   @override
   Widget build(BuildContext context) {
+    final discountedPrice =
+        (mrp - discount).clamp(0.0, mrp); // Calculate discounted price
+
     return Card(
-      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      color: Colors.white.withOpacity(0.6), // Make the card semi-transparent
+      elevation: 4,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Image and Wishlist Icon
           Stack(
             children: [
               // Product Image
@@ -52,13 +55,13 @@ class ProductCard extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
                   imageUrl,
-                  height: 180,
+                  height: 150,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return Container(
-                      height: 180,
+                      height: 150,
                       width: double.infinity,
                       color: Colors.white,
                       child: Center(child: CircularProgressIndicator()),
@@ -66,66 +69,51 @@ class ProductCard extends StatelessWidget {
                   },
                 ),
               ),
-              // Wishlist Icon
+              // Discount Badge
+              if (discount > 0)
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '-${discount.toInt()}%',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              // Favorite Button
               Positioned(
                 top: 8,
                 right: 8,
                 child: Obx(() {
                   return InkWell(
                     onTap: () {
-                      inWishlist.value = !inWishlist.value; // Toggle wishlist
+                      inWishlist.toggle(); // Toggle the wishlist state
                     },
                     child: Icon(
                       inWishlist.value ? Icons.favorite : Icons.favorite_border,
                       color: Colors.red,
+                      size: 24,
                     ),
                   );
                 }),
               ),
             ],
           ),
-          // Product Details
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Price and Rating
-                Row(
-                  children: [
-                    // Original Price
-                    if (discount > 0)
-                      Text(
-                        "₹${mrp.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                    SizedBox(width: 8),
-                    // Discounted Price
-                    Text(
-                      "₹${(mrp - (mrp * discount / 100)).toStringAsFixed(2)}",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    Spacer(),
-                    // Rating
-                    Icon(Icons.star, color: Colors.orange, size: 16),
-                    SizedBox(width: 4),
-                    Text(
-                      avgRating,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
                 // Product Name
                 Text(
                   name,
@@ -133,8 +121,46 @@ class ProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: 16,
                   ),
+                ),
+                SizedBox(height: 4),
+                // Old Price and Discounted Price
+                Row(
+                  children: [
+                    Text(
+                      '₹${mrp.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '₹${discountedPrice.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                // Rating
+                Row(
+                  children: [
+                    Icon(Icons.star, color: Colors.orange, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      avgRating,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

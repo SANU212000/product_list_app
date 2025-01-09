@@ -35,23 +35,15 @@ class HomePage extends StatelessWidget {
           body: IndexedStack(
             index: selectedIndex,
             children: [
-              // Home Screen
               HomeScreen(),
-              // Wishlist Screen
               WishlistScreen(),
-              // Profile Screen
               ProfileScreen(),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: selectedIndex,
             onTap: (index) {
-              if (index == 1) {
-                Get.toNamed(
-                    AppRoutes.whitelist); // Navigate to the wishlist screen
-              } else {
-                _selectedIndexNotifier.value = index; // Update selected index
-              }
+              _selectedIndexNotifier.value = index;
             },
             items: const [
               BottomNavigationBarItem(
@@ -119,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                     mrp: product['mrp']?.toDouble() ?? 0.0,
                     discount: product['discount_price']?.toDouble() ?? 0.0,
                     imageUrl: product['featured_image'] ??
-                        'https://admin.kushinirestaurant.com/media/Banner_.png', // Replace with actual field name
+                        'https://admin.kushinirestaurant.com/media/Banner_.png',
                     avgRating: product['avg_rating']?.toString() ?? '0.0',
                   );
                 },
@@ -133,9 +125,9 @@ class HomeScreen extends StatelessWidget {
 }
 
 class WishlistController extends GetxController {
-  var inWishlist = false.obs; // .obs makes it observable
+  var inWishlist = false.obs;
 
   void toggleWishlist() {
-    inWishlist.value = !inWishlist.value; // Toggle the state
+    inWishlist.value = !inWishlist.value;
   }
 }
