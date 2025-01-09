@@ -244,52 +244,82 @@ class BannerSlider extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.all(10),
             child: Container(
-              height: 200,
+              height: 160,
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.blue[50],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: CarouselSlider(
-                options: CarouselOptions(
-                  height: 200,
-                  autoPlay: true,
-                  enlargeCenterPage: true,
-                  aspectRatio: 16 / 9,
-                  padEnds: true,
-                  enableInfiniteScroll: true,
-                ),
-                items: bannerImages.map((imageUrl) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          imageUrl,
-                          fit: BoxFit.fill,
-                          width: double.infinity,
-                          height: double.infinity,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else {
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          (loadingProgress.expectedTotalBytes ??
-                                              1)
-                                      : null,
-                                ),
-                              );
-                            }
-                          },
-                        ),
+              child: Stack(
+                children: [
+                  CarouselSlider(
+                    options: CarouselOptions(
+                      height: 200, // Matches the container height
+                      autoPlay: true,
+                      enlargeCenterPage: true,
+                      viewportFraction: 1.0, // Ensure full-width banners
+                      padEnds: false, // Remove padding at edges
+                      enableInfiniteScroll: true,
+                      aspectRatio: 16 / 9,
+                    ),
+                    items: bannerImages.map((imageUrl) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.fill,
+                              width: double.infinity,
+                              height: double.infinity,
+                              loadingBuilder: (BuildContext context,
+                                  Widget child,
+                                  ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  (loadingProgress
+                                                          .expectedTotalBytes ??
+                                                      1)
+                                              : null,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          );
+                        },
                       );
-                    },
-                  );
-                }).toList(),
+                    }).toList(),
+                  ),
+                  Positioned(
+                    bottom: 20,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: bannerImages.asMap().entries.map((entry) {
+                        return Container(
+                          width: 8.0,
+                          height: 8.0,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 4.0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.blue,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
