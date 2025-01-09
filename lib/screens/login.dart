@@ -224,12 +224,9 @@ Future<void> verifyUser(String phoneNumber, String phoneNumberdetails) async {
           print('Token is missing, proceeding without it.');
         }
 
-        // Navigate based on user verification status
         if (user == true) {
-          // User is verified and exists in the database
           Get.off(() => HomePage());
         } else {
-          // User not registered, navigate to OTP screen for registration
           Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: otp));
         }
       } else {
@@ -237,7 +234,7 @@ Future<void> verifyUser(String phoneNumber, String phoneNumberdetails) async {
         Get.snackbar(
             'Error', 'Failed to verify user due to incomplete response');
         // Proceed to OTP screen if response is incomplete
-        Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: ''));
+        // Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: ''));
       }
     } else {
       print('Login failed with status code: ${response.statusCode}');

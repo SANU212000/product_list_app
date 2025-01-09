@@ -101,7 +101,16 @@ class OtpScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              Text("otp is $otp"),
+              SizedBox(
+                height: 20,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'OTP is $otp',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
               SizedBox(
                 height: 60,
               ),

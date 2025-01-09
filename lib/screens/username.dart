@@ -87,11 +87,8 @@ class UsernameScreen extends StatelessWidget {
                     await loginOrRegisterUser(context, username, phone);
                     print('Username: $username');
 
-                    // Use GetX navigation to go to the login screen and remove all previous screens
-                    Get.offAll(
-                        LoginScreen()); // Replace LoginScreen with your login page
+                    Get.offAll(LoginScreen());
                   } else {
-                    // Show error if username is empty
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please enter a valid name')),
                     );
@@ -135,16 +132,15 @@ Future<void> loginOrRegisterUser(
       print('User ID: $userId');
       print('Token: $token');
 
-      if (token != null && token.isNotEmpty) {
-        // Save the token in SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', token);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Token missing in response')),
-        );
-        return;
-      }
+      // if (token != null && token.isNotEmpty) {
+      // final prefs = await SharedPreferences.getInstance();
+      // await prefs.setString('token', token);
+      // } else {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text('Token missing in response')),
+      //   );
+      //   return;
+      // }
     } else if (response.statusCode == 400) {
       final errorMessage = json.decode(response.body)['message'];
       ScaffoldMessenger.of(context).showSnackBar(
