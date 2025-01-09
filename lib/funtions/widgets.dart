@@ -36,21 +36,21 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final discountedPrice =
-        (mrp - discount).clamp(0.0, mrp); // Calculate discounted price
+    final discountedPrice = (mrp - discount).clamp(0.0, mrp);
+    final discountPercentage =
+        ((discount / mrp) * 100).toStringAsFixed(1); // Calculate percentage
 
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: Colors.white.withOpacity(0.6), // Make the card semi-transparent
-      elevation: 4,
+      color: Colors.white,
+      elevation: 0.1,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
-              // Product Image
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
@@ -69,7 +69,6 @@ class ProductCard extends StatelessWidget {
                   },
                 ),
               ),
-              // Discount Badge
               if (discount > 0)
                 Positioned(
                   top: 8,
@@ -81,7 +80,7 @@ class ProductCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '-${discount.toInt()}%',
+                      '-${discountPercentage}%',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -90,14 +89,13 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              // Favorite Button
               Positioned(
                 top: 8,
                 right: 8,
                 child: Obx(() {
                   return InkWell(
                     onTap: () {
-                      inWishlist.toggle(); // Toggle the wishlist state
+                      inWishlist.toggle();
                     },
                     child: Icon(
                       inWishlist.value ? Icons.favorite : Icons.favorite_border,
@@ -110,28 +108,17 @@ class ProductCard extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(2.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Product Name
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
                 SizedBox(height: 4),
-                // Old Price and Discounted Price
                 Row(
                   children: [
                     Text(
                       '₹${mrp.toStringAsFixed(2)}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12,
                         color: Colors.grey,
                         decoration: TextDecoration.lineThrough,
                       ),
@@ -145,14 +132,8 @@ class ProductCard extends StatelessWidget {
                         color: Colors.blue,
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                // Rating
-                Row(
-                  children: [
+                    Spacer(),
                     Icon(Icons.star, color: Colors.orange, size: 16),
-                    SizedBox(width: 4),
                     Text(
                       avgRating,
                       style: TextStyle(
@@ -161,6 +142,17 @@ class ProductCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+                SizedBox(height: 8),
+                Row(),
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
                 ),
               ],
             ),

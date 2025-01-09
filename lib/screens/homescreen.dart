@@ -108,11 +108,14 @@ class HomeScreen extends StatelessWidget {
                   final product = products[index];
                   return ProductCard(
                     name: product['name'] ?? 'Unknown',
-                    mrp: product['mrp']?.toDouble() ?? 0.0,
-                    discount: product['discount_price']?.toDouble() ?? 0.0,
+                    mrp: double.tryParse(product['mrp']?.toString() ?? '0.0') ??
+                        0.0,
+                    discount: double.tryParse(
+                            product['discount']?.toString() ?? '0.0') ??
+                        0.0,
                     imageUrl: product['featured_image'] ??
                         'https://admin.kushinirestaurant.com/media/Banner_.png',
-                    avgRating: product['avg_rating']?.toString() ?? '0.0',
+                    avgRating: product['category']?.toString() ?? '0.0',
                   );
                 },
               );
