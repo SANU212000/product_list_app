@@ -23,6 +23,7 @@ class ProductCard extends StatelessWidget {
   final double discount;
   final String imageUrl;
   final String avgRating;
+  final RxBool inWishlist; // Reactive field for wishlist state
 
   ProductCard({
     required this.name,
@@ -30,11 +31,11 @@ class ProductCard extends StatelessWidget {
     required this.discount,
     required this.imageUrl,
     required this.avgRating,
-  });
+    bool inWishlist = false,
+  }) : inWishlist = RxBool(inWishlist);
 
   @override
   Widget build(BuildContext context) {
-    final WishlistController wishlistController = Get.put(WishlistController());
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -43,8 +44,10 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Product Image and Wishlist Icon
           Stack(
             children: [
+              // Product Image
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.network(
@@ -63,19 +66,17 @@ class ProductCard extends StatelessWidget {
                   },
                 ),
               ),
+              // Wishlist Icon
               Positioned(
                 top: 8,
                 right: 8,
                 child: Obx(() {
                   return InkWell(
                     onTap: () {
-                      wishlistController
-                          .toggleWishlist(); // Toggle wishlist state
+                      inWishlist.value = !inWishlist.value; // Toggle wishlist
                     },
                     child: Icon(
-                      wishlistController.inWishlist.value
-                          ? Icons.favorite
-                          : Icons.favorite_border,
+                      inWishlist.value ? Icons.favorite : Icons.favorite_border,
                       color: Colors.red,
                     ),
                   );
@@ -83,33 +84,38 @@ class ProductCard extends StatelessWidget {
               ),
             ],
           ),
+          // Product Details
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Price and Rating
                 Row(
                   children: [
-                    SizedBox(height: 4),
-                    Text(
-                      "₹800", // You can update the price dynamically
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                        decoration: TextDecoration.lineThrough,
+                    // Original Price
+                    if (discount > 0)
+                      Text(
+                        "₹${mrp.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          decoration: TextDecoration.lineThrough,
+                        ),
                       ),
-                    ),
                     SizedBox(width: 8),
+                    // Discounted Price
                     Text(
-                      "₹$mrp",
+                      "₹${(mrp - (mrp * discount / 100)).toStringAsFixed(2)}",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.blue,
                       ),
                     ),
-                    SizedBox(width: 30),
+                    Spacer(),
+                    // Rating
                     Icon(Icons.star, color: Colors.orange, size: 16),
                     SizedBox(width: 4),
                     Text(
@@ -119,13 +125,15 @@ class ProductCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                SizedBox(height: 4),
+                // Product Name
                 Text(
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 18,
                   ),
                 ),
               ],
