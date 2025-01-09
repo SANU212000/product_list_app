@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:product_listing_app/screens/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsernameScreen extends StatelessWidget {
@@ -81,8 +83,19 @@ class UsernameScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   final username = _usernameController.text;
-                  await loginOrRegisterUser(context, username, phone);
-                  print('Username: $username');
+                  if (username.isNotEmpty) {
+                    await loginOrRegisterUser(context, username, phone);
+                    print('Username: $username');
+
+                    // Use GetX navigation to go to the login screen and remove all previous screens
+                    Get.offAll(
+                        LoginScreen()); // Replace LoginScreen with your login page
+                  } else {
+                    // Show error if username is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Please enter a valid name')),
+                    );
+                  }
                 },
                 child: Text('Submit'),
               ),
@@ -107,9 +120,7 @@ Future<void> loginOrRegisterUser(
 
     final response = await http.post(
       Uri.parse(apiUrl),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: {'Content-Type': 'application/json'},
       body: json.encode(requestBody),
     );
 
@@ -124,8 +135,16 @@ Future<void> loginOrRegisterUser(
       print('User ID: $userId');
       print('Token: $token');
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', token);
+      if (token != null && token.isNotEmpty) {
+        // Save the token in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Token missing in response')),
+        );
+        return;
+      }
     } else if (response.statusCode == 400) {
       final errorMessage = json.decode(response.body)['message'];
       ScaffoldMessenger.of(context).showSnackBar(
@@ -134,10 +153,8 @@ Future<void> loginOrRegisterUser(
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Unexpected Error (Status code: ${response.statusCode})',
-          ),
-        ),
+            content:
+                Text('Unexpected Error (Status code: ${response.statusCode})')),
       );
     }
   } catch (e) {

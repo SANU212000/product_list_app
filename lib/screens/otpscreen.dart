@@ -184,24 +184,6 @@ class OtpScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 55.0,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.to(() => HomePage());
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  child: Text(
-                    'Go to Username',
-                    style: TextStyle(fontSize: 16.0, color: Colors.white),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
