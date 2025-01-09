@@ -58,7 +58,6 @@ class WishlistScreen extends StatelessWidget {
                   imageUrl: product['featured_image'] ??
                       'https://admin.kushinirestaurant.com/media/Banner_.png',
                   avgRating: product['avg_rating']?.toString() ?? '0.0',
-                  inWishlist: true,
                 );
               },
             );

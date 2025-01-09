@@ -26,6 +26,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final WishlistController wishlistController = Get.put(WishlistController());
     return ValueListenableBuilder<int>(
       valueListenable: _selectedIndexNotifier,
       builder: (context, selectedIndex, _) {
@@ -128,5 +129,13 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class WishlistController extends GetxController {
+  var inWishlist = false.obs; // .obs makes it observable
+
+  void toggleWishlist() {
+    inWishlist.value = !inWishlist.value; // Toggle the state
   }
 }

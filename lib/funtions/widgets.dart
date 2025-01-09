@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:product_listing_app/screens/homescreen.dart';
 
 Future<List<dynamic>> fetchProducts() async {
   final response = await http.get(
@@ -20,7 +22,6 @@ class ProductCard extends StatelessWidget {
   final double mrp;
   final double discount;
   final String imageUrl;
-  final bool inWishlist;
   final String avgRating;
 
   ProductCard({
@@ -29,14 +30,13 @@ class ProductCard extends StatelessWidget {
     required this.discount,
     required this.imageUrl,
     required this.avgRating,
-    this.inWishlist = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final WishlistController wishlistController = Get.put(WishlistController());
     return Card(
       color: Colors.white,
-      // elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -66,13 +66,20 @@ class ProductCard extends StatelessWidget {
               Positioned(
                 top: 8,
                 right: 8,
-                child: InkWell(
-                  onTap: () {},
-                  child: Icon(
-                    inWishlist ? Icons.favorite : Icons.favorite_border,
-                    color: Colors.red,
-                  ),
-                ),
+                child: Obx(() {
+                  return InkWell(
+                    onTap: () {
+                      wishlistController
+                          .toggleWishlist(); // Toggle wishlist state
+                    },
+                    child: Icon(
+                      wishlistController.inWishlist.value
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: Colors.red,
+                    ),
+                  );
+                }),
               ),
             ],
           ),
@@ -81,12 +88,11 @@ class ProductCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // SizedBox(height: 6),
                 Row(
                   children: [
                     SizedBox(height: 4),
                     Text(
-                      "₹800",
+                      "₹800", // You can update the price dynamically
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -94,10 +100,7 @@ class ProductCard extends StatelessWidget {
                         decoration: TextDecoration.lineThrough,
                       ),
                     ),
-                    SizedBox(
-                      height: 4,
-                      width: 8,
-                    ),
+                    SizedBox(width: 8),
                     Text(
                       "₹$mrp",
                       style: TextStyle(
