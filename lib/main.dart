@@ -8,5 +8,7 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
 
-  runApp(MyApp(token: token));
+  runApp(MyApp(
+    token: token,
+  ));
 }

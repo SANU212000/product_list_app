@@ -254,11 +254,11 @@ class BannerSlider extends StatelessWidget {
                 children: [
                   CarouselSlider(
                     options: CarouselOptions(
-                      height: 200, // Matches the container height
+                      height: 200,
                       autoPlay: true,
                       enlargeCenterPage: true,
-                      viewportFraction: 1.0, // Ensure full-width banners
-                      padEnds: false, // Remove padding at edges
+                      viewportFraction: 1.0,
+                      padEnds: false,
                       enableInfiniteScroll: true,
                       aspectRatio: 16 / 9,
                     ),
@@ -373,7 +373,6 @@ class CustomBottomBar extends StatelessWidget {
     );
   }
 
-  // Helper method to create a custom tab item
   Widget _tabItem(Widget icon, String label, {required bool isSelected}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
