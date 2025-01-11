@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart'; // Add this import
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/services.dart';
 import 'package:product_listing_app/screens/homescreen.dart';
@@ -11,7 +11,6 @@ import 'package:product_listing_app/screens/username.dart';
 
 Future<void> makeAuthenticatedRequest() async {
   try {
-    // Retrieve the saved token from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
@@ -48,7 +47,7 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController countrycodeController =
       TextEditingController(text: '+91');
   String get phoneNumberdetails =>
-      countrycodeController.text + '-' + phoneController.text;
+      '${countrycodeController.text}-${phoneController.text}';
   String get phoneNumber => phoneController.text;
 
   @override
@@ -152,7 +151,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16.0),
-                Container(
+                SizedBox(
                   width: 3.0,
                   child: Text.rich(
                     TextSpan(

@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   Future<Map<String, String>> _fetchUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');

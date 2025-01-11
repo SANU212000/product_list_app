@@ -91,7 +91,7 @@ class OtpScreen extends StatelessWidget {
                     style: TextStyle(color: Colors.grey[600], fontSize: 15.0),
                     children: <TextSpan>[
                       TextSpan(
-                        text: "$phonenumber",
+                        text: phonenumber,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black,

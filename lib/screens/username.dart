@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:product_listing_app/screens/login.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UsernameScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();

@@ -5,18 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:product_listing_app/screens/homescreen.dart';
 
-Future<List<dynamic>> fetchProducts() async {
-  final response = await http.get(
-    Uri.parse("https://admin.kushinirestaurant.com/api/products/"),
-  );
-
-  if (response.statusCode == 200) {
-    return json.decode(response.body);
-  } else {
-    throw Exception('Failed to load products');
-  }
-}
-
 class ProductCard extends StatelessWidget {
   final String name;
   final double mrp;
@@ -26,6 +14,7 @@ class ProductCard extends StatelessWidget {
   final RxBool inWishlist;
 
   ProductCard({
+    super.key,
     required this.name,
     required this.mrp,
     required this.discount,
@@ -80,7 +69,7 @@ class ProductCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '-${discountPercentage}%',
+                      '-$discountPercentage%',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -164,48 +153,53 @@ class ProductCard extends StatelessWidget {
 }
 
 class CustomSearchBar extends StatelessWidget {
+  const CustomSearchBar({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
+    return SafeArea(
       child: Container(
-        height: 55,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 80,
-              offset: Offset(0, 80),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: "Search",
-                  hintStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 18,
+        padding: const EdgeInsets.all(2.0),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          height: 55,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 80,
+                offset: Offset(0, 80),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search",
+                    hintStyle: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 20),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20),
                 ),
               ),
-            ),
-            Container(
-              width: 2,
-              height: 25,
-              color: Colors.black,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Icon(Icons.search, color: Colors.black, size: 25),
-            ),
-          ],
+              Container(
+                width: 2,
+                height: 25,
+                color: Colors.black,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Icon(Icons.search, color: Colors.black, size: 25),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -213,6 +207,8 @@ class CustomSearchBar extends StatelessWidget {
 }
 
 class BannerSlider extends StatelessWidget {
+  const BannerSlider({super.key});
+
   Future<List<String>> fetchBanners() async {
     final response = await http.get(
       Uri.parse('https://admin.kushinirestaurant.com/api/banners/'),
@@ -330,62 +326,97 @@ class BannerSlider extends StatelessWidget {
 }
 
 class CustomBottomBar extends StatelessWidget {
-  final ValueNotifier<int> selectedIndexNotifier;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final List<IconData> icons;
+  final List<String> labels;
 
-  CustomBottomBar({required this.selectedIndexNotifier});
-
-  final List<String> _labels = ['Home', 'Maps', 'Camera'];
-  final List<Widget> _icons = const [
-    Icon(Icons.home_outlined),
-    Icon(Icons.explore_outlined),
-    Icon(Icons.camera_alt_outlined),
-  ];
+  const CustomBottomBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+    required this.icons,
+    required this.labels,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 100,
-      padding: const EdgeInsets.all(12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(50.0),
-        child: Container(
-          color: Colors.teal.withOpacity(0.1),
-          child: TabBar(
-            onTap: (x) {
-              selectedIndexNotifier.value = x; // Update selected index
-            },
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.blueGrey,
-            indicator: const UnderlineTabIndicator(
-              borderSide: BorderSide.none,
+    return SafeArea(
+      child: Container(
+        height: 70,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              spreadRadius: 2,
+              offset: Offset(0, -2),
             ),
-            tabs: [
-              for (int i = 0; i < _icons.length; i++)
-                _tabItem(
-                  _icons[i],
-                  _labels[i],
-                  isSelected: i == selectedIndexNotifier.value,
+          ],
+          borderRadius: BorderRadius.circular(40),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: icons.asMap().entries.map((entry) {
+            final index = entry.key;
+            final icon = entry.value;
+            final isSelected = currentIndex == index;
+
+            return GestureDetector(
+              onTap: () => onTap(index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Color.fromARGB(237, 12, 44, 94)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(40),
                 ),
-            ],
-          ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      item.icon.icon,
+                      size: 32, // Icon size
+                      color: isSelected ? Colors.white : Colors.grey,
+                    ),
+                    if (isSelected) // Show label only when selected
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8), // Spacing between icon and label
+                        child: Text(
+                          item.label ?? '',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ),
     );
   }
+}
 
-  Widget _tabItem(Widget icon, String label, {required bool isSelected}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        icon,
-        Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.blue : Colors.blueGrey,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
+class WishlistController extends GetxController {
+  final wishlist = <String>[].obs;
+
+  void addToWishlist(String productId) {
+    if (!wishlist.contains(productId)) {
+      wishlist.add(productId);
+    }
+  }
+
+  void removeFromWishlist(String productId) {
+    wishlist.remove(productId);
   }
 }

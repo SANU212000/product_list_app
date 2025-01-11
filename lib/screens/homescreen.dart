@@ -11,52 +11,45 @@ import 'package:get/get.dart';
 class HomePage extends StatelessWidget {
   final ValueNotifier<int> _selectedIndexNotifier = ValueNotifier<int>(0);
 
-  // Function to fetch products (you can modify this to fetch from your API)
-  Future<List<dynamic>> fetchProducts() async {
-    final response = await http.get(
-      Uri.parse("https://admin.kushinirestaurant.com/api/products/"),
-    );
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load products');
-    }
-  }
+  HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final WishlistController wishlistController = Get.put(WishlistController());
     return ValueListenableBuilder<int>(
       valueListenable: _selectedIndexNotifier,
       builder: (context, selectedIndex, _) {
         return Scaffold(
           backgroundColor: Colors.white,
-          body: IndexedStack(
-            index: selectedIndex,
+          body: Stack(
             children: [
-              HomeScreen(),
-              WishlistScreen(),
-              ProfileScreen(),
-            ],
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: selectedIndex,
-            onTap: (index) {
-              _selectedIndexNotifier.value = index;
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
+              IndexedStack(
+                index: selectedIndex,
+                children: [
+                  HomeScreen(),
+                  WishlistScreen(),
+                  ProfileScreen(),
+                ],
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
-                label: 'Whitelist',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 20,
+                child: CustomBottomBar(
+                  currentIndex: selectedIndex,
+                  onTap: (index) {
+                    _selectedIndexNotifier.value = index;
+                  },
+                  icons: const [
+                    Icons.home,
+                    Icons.favorite,
+                    Icons.person,
+                  ],
+                  labels: const [
+                    'Home',
+                    'Whitelist',
+                    'Profile',
+                  ],
+                ),
               ),
             ],
           ),
@@ -67,6 +60,8 @@ class HomePage extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(

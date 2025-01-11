@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:product_listing_app/funtions/navigation.dart';
-import 'package:product_listing_app/screens/introscreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

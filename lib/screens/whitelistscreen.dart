@@ -4,6 +4,8 @@ import 'package:product_listing_app/funtions/widgets.dart';
 import 'dart:convert';
 
 class WishlistScreen extends StatelessWidget {
+  const WishlistScreen({super.key});
+
   Future<List<dynamic>> fetchWishlistProducts() async {
     try {
       final response = await http.get(
