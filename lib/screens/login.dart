@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:product_listing_app/screens/homescreen.dart';
 import 'dart:convert';
 import 'package:product_listing_app/screens/otpscreen.dart';
-import 'package:product_listing_app/screens/username.dart';
 
 Future<void> makeAuthenticatedRequest() async {
   try {

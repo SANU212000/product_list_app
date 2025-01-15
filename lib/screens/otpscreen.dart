@@ -1,11 +1,8 @@
-import 'dart:ui';
-
 import 'package:get/get.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:flutter/gestures.dart';
-import 'package:product_listing_app/screens/homescreen.dart';
 import 'package:product_listing_app/screens/username.dart';
 
 class OtpScreen extends StatelessWidget {

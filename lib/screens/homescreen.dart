@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:product_listing_app/funtions/navigation.dart';
 import 'package:product_listing_app/funtions/widgets.dart';
 import 'package:product_listing_app/screens/profilescreen.dart';

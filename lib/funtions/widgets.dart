@@ -325,6 +325,87 @@ class BannerSlider extends StatelessWidget {
   }
 }
 
+// class CustomBottomBar extends StatelessWidget {
+//   final int currentIndex;
+//   final ValueChanged<int> onTap;
+//   final List<IconData> icons;
+//   final List<String> labels;
+
+//   const CustomBottomBar({
+//     super.key,
+//     required this.currentIndex,
+//     required this.onTap,
+//     required this.icons,
+//     required this.labels,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SafeArea(
+//       child: Container(
+//         height: 70,
+//         margin: const EdgeInsets.symmetric(horizontal: 16),
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withOpacity(0.1),
+//               blurRadius: 8,
+//               spreadRadius: 2,
+//               offset: Offset(0, -2),
+//             ),
+//           ],
+//           borderRadius: BorderRadius.circular(40),
+//         ),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.spaceAround,
+//           children: icons.asMap().entries.map((entry) {
+//             final index = entry.key;
+//             final icon = entry.value;
+//             final isSelected = currentIndex == index;
+
+//             return GestureDetector(
+//               onTap: () => onTap(index),
+//               child: AnimatedContainer(
+//                 duration: const Duration(milliseconds: 300),
+//                 padding:
+//                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+//                 decoration: BoxDecoration(
+//                   color: isSelected
+//                       ? Color.fromARGB(237, 12, 44, 94)
+//                       : Colors.transparent,
+//                   borderRadius: BorderRadius.circular(40),
+//                 ),
+//                 child: Row(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     Icon(
+//                       item.icon.icon,
+//                       size: 32, // Icon size
+//                       color: isSelected ? Colors.white : Colors.grey,
+//                     ),
+//                     if (isSelected) // Show label only when selected
+//                       Padding(
+//                         padding: const EdgeInsets.only(
+//                             left: 8), // Spacing between icon and label
+//                         child: Text(
+//                           item.label ?? '',
+//                           style: const TextStyle(
+//                             fontSize: 14,
+//                             color: Colors.white,
+//                           ),
+//                         ),
+//                       ),
+//                   ],
+//                 ),
+//               ),
+//             );
+//           }).toList(),
+//         ),
+//       ),
+//     );
+//   }
+// }
 class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -380,16 +461,15 @@ class CustomBottomBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      item.icon.icon,
-                      size: 32, // Icon size
+                      icon,
+                      size: 32,
                       color: isSelected ? Colors.white : Colors.grey,
                     ),
-                    if (isSelected) // Show label only when selected
+                    if (isSelected)
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 8), // Spacing between icon and label
+                        padding: const EdgeInsets.only(left: 8),
                         child: Text(
-                          item.label ?? '',
+                          labels[index],
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.white,
