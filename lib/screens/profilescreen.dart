@@ -16,8 +16,7 @@ class ProfileScreen extends StatelessWidget {
       throw Exception('No authentication token found');
     }
 
-    final url = Uri.parse(
-        'https://admin.kushinirestaurant.com/api/user-data/'); // Replace with your API URL
+    final url = Uri.parse('https://admin.kushinirestaurant.com/api/user-data/');
     final response = await http.get(
       url,
       headers: {
@@ -27,7 +26,6 @@ class ProfileScreen extends StatelessWidget {
     );
 
     if (response.statusCode == 200) {
-      // If the response is successful, decode the JSON data
       final data = jsonDecode(response.body);
       return {
         'name': data['name'] ?? 'Unknown',
@@ -111,9 +109,12 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // Function to log out by clearing the token
-  Future<void> _logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
-    Get.offAll(() => LoginScreen()); // Navigate to the login screen
-  }
+}
+
+Future<void> _logout(BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('auth_token');
+
+  // Pass an empty string or the actual token you want to send
+  Get.offAll(() => LoginScreen()); // Pass the token as required
 }

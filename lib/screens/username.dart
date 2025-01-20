@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:product_listing_app/screens/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UsernameScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
-
   final String phone;
-
   final String otpCode;
 
   UsernameScreen({super.key, required this.phone, required this.otpCode});
@@ -86,7 +85,7 @@ class UsernameScreen extends StatelessWidget {
                     await loginOrRegisterUser(context, username, phone);
                     print('Username: $username');
 
-                    Get.offAll(LoginScreen());
+                    // Get.offAll(LoginScreen());
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please enter a valid name')),
@@ -110,18 +109,29 @@ Future<void> loginOrRegisterUser(
 
   try {
     final Map<String, String> requestBody = {
-      'first_name': username,
-      'phone_number': phone,
+      "first_name": username,
+      "phone_number": phone,
     };
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(requestBody),
-    );
+    // Check if username or phone is empty
+    if (username.isEmpty || phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Username and phone number cannot be empty')),
+      );
+      return;
+    }
+
+    // Make the HTTP POST request
+    final response = await http
+        .post(
+          Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(requestBody),
+        )
+        .timeout(const Duration(seconds: 10));
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = jsonDecode(response.body);
 
       final token = data['token']['access'];
       final userId = data['user_id'];
@@ -131,15 +141,22 @@ Future<void> loginOrRegisterUser(
       print('User ID: $userId');
       print('Token: $token');
 
-      // if (token != null && token.isNotEmpty) {
-      // final prefs = await SharedPreferences.getInstance();
-      // await prefs.setString('token', token);
-      // } else {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text('Token missing in response')),
-      //   );
-      //   return;
-      // }
+      // If the token is available, store it and navigate
+      if (token != null && token.isNotEmpty) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login Successful!')),
+        );
+
+        // Navigate to the Home Screen (or any other screen)
+        Get.offAll(() => LoginScreen()); // Replace with your target screen
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Token missing in response')),
+        );
+      }
     } else if (response.statusCode == 400) {
       final errorMessage = json.decode(response.body)['message'];
       ScaffoldMessenger.of(context).showSnackBar(
@@ -158,3 +175,13 @@ Future<void> loginOrRegisterUser(
     );
   }
 }
+
+// void restartApp(BuildContext context, String token) {
+//   Navigator.pushAndRemoveUntil(
+//     context,
+//     MaterialPageRoute(
+//       builder: (context) => LoginScreen(token: token),
+//     ),
+//     (route) => false,
+//   );
+// }

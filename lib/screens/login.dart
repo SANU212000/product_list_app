@@ -12,36 +12,45 @@ Future<void> makeAuthenticatedRequest() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
+    print('Token retrieved: $token');
 
     if (token == null) {
-      // Get.snackbar('Error', 'Authentication token not found');
+      Get.snackbar('Error', 'No token found, please login again');
       return;
     }
 
     final url = Uri.parse('https://admin.kushinirestaurant.com/api/verify/');
+
     final response = await http.get(
       url,
       headers: {
-        'Authorization': 'Bearer $token', // Add token to headers
+        'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
     );
 
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
     if (response.statusCode == 200) {
       print('Request successful: ${response.body}');
+    } else if (response.statusCode == 401) {
+      Get.snackbar('Unauthorized', 'Session expired, please login again');
+      // Redirect to login screen (if using GetX)
+      Get.offAll(() => LoginScreen()); // Replace with your login screen
     } else {
+      // Other errors: Handle accordingly
       print('Request failed: ${response.statusCode}');
       Get.snackbar('Error', 'Failed to access protected resource');
     }
   } catch (e) {
+    // Catch any unexpected errors
     print('Error occurred: $e');
     Get.snackbar('Error', 'An unexpected error occurred');
   }
 }
 
 class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
-
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController countrycodeController =
       TextEditingController(text: '+91');
@@ -127,7 +136,7 @@ class LoginScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       if (phoneNumber.isNotEmpty) {
-                        verifyUser(phoneNumber, phoneNumberdetails).then((_) {
+                        verifyUser(phoneNumber).then((_) {
                           print('Verification completed successfully');
                         }).catchError((error) {
                           Get.snackbar('Error', 'Failed to verify user');
@@ -186,8 +195,9 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-Future<void> verifyUser(String phoneNumber, String phoneNumberdetails) async {
+Future<void> verifyUser(String phoneNumber) async {
   final url = Uri.parse('https://admin.kushinirestaurant.com/api/verify/');
+
   try {
     final response = await http.post(
       url,
@@ -205,12 +215,10 @@ Future<void> verifyUser(String phoneNumber, String phoneNumberdetails) async {
       if (data != null && data.containsKey('otp') && data.containsKey('user')) {
         final otp = data['otp'];
         final user = data['user'];
-
-        // Check if token exists in response
         final token =
             data.containsKey('token') ? data['token']['access'] : null;
 
-        if (token != null) {
+        if (token != null && token.isNotEmpty) {
           print('Login Successful!');
           print('OTP: $otp');
           print('User: $user');
@@ -218,33 +226,31 @@ Future<void> verifyUser(String phoneNumber, String phoneNumberdetails) async {
 
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
+          print('Token stored successfully: $token');
         } else {
           print('Token is missing, proceeding without it.');
         }
 
         if (user == true) {
-          Get.off(() => HomePage());
+          Get.offAll(() => HomePage());
         } else {
-          Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: otp));
+          Get.to(() => OtpScreen(phonenumber: phoneNumber, otp: otp));
         }
       } else {
         print('Unexpected response structure or missing OTP: ${response.body}');
         Get.snackbar(
             'Error', 'Failed to verify user due to incomplete response');
-        // Proceed to OTP screen if response is incomplete
-        // Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: ''));
       }
     } else {
       print('Login failed with status code: ${response.statusCode}');
       print('Response body: ${response.body}');
       Get.snackbar('Error', 'Failed to verify user');
-      // Handle moving to OTP screen in case of failed response
-      Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: ''));
+      Get.to(() => OtpScreen(phonenumber: phoneNumber, otp: ''));
     }
   } catch (e) {
     print('Error occurred during login: $e');
     Get.snackbar('Error', 'An unexpected error occurred');
-    // Handle moving to OTP screen in case of error
-    Get.to(() => OtpScreen(phonenumber: phoneNumberdetails, otp: ''));
+    Get.to(() => OtpScreen(
+        phonenumber: phoneNumber, otp: '')); // Navigate to OTP screen on error
   }
 }

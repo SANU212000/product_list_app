@@ -3,31 +3,32 @@ import 'package:get/get.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:product_listing_app/screens/homescreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductCard extends StatelessWidget {
+  final String productId;
   final String name;
   final double mrp;
   final double discount;
   final String imageUrl;
   final String avgRating;
-  final RxBool inWishlist;
 
   ProductCard({
     super.key,
+    required this.productId,
     required this.name,
     required this.mrp,
     required this.discount,
     required this.imageUrl,
     required this.avgRating,
-    bool initialWishlistState = false,
-  }) : inWishlist = RxBool(initialWishlistState);
+  });
+
+  final WishlistController wishlistController = Get.put(WishlistController());
 
   @override
   Widget build(BuildContext context) {
     final discountedPrice = (mrp - discount).clamp(0.0, mrp);
-    final discountPercentage =
-        ((discount / mrp) * 100).toStringAsFixed(1); // Calculate percentage
+    final discountPercentage = ((discount / mrp) * 100).toStringAsFixed(1);
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -82,13 +83,15 @@ class ProductCard extends StatelessWidget {
                 top: 8,
                 right: 8,
                 child: Obx(() {
+                  final isInWishlist =
+                      wishlistController.wishlist.contains(productId);
                   return InkWell(
                     onTap: () {
-                      inWishlist.toggle();
+                      wishlistController.toggleWishlist(productId);
                     },
                     child: Icon(
-                      inWishlist.value ? Icons.favorite : Icons.favorite_border,
-                      color: Colors.red,
+                      isInWishlist ? Icons.favorite : Icons.favorite_border,
+                      color: isInWishlist ? Colors.red : Colors.grey,
                       size: 24,
                     ),
                   );
@@ -97,7 +100,7 @@ class ProductCard extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.all(2.0),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -133,7 +136,6 @@ class ProductCard extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8),
-                Row(),
                 Text(
                   name,
                   maxLines: 1,
@@ -325,87 +327,6 @@ class BannerSlider extends StatelessWidget {
   }
 }
 
-// class CustomBottomBar extends StatelessWidget {
-//   final int currentIndex;
-//   final ValueChanged<int> onTap;
-//   final List<IconData> icons;
-//   final List<String> labels;
-
-//   const CustomBottomBar({
-//     super.key,
-//     required this.currentIndex,
-//     required this.onTap,
-//     required this.icons,
-//     required this.labels,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SafeArea(
-//       child: Container(
-//         height: 70,
-//         margin: const EdgeInsets.symmetric(horizontal: 16),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withOpacity(0.1),
-//               blurRadius: 8,
-//               spreadRadius: 2,
-//               offset: Offset(0, -2),
-//             ),
-//           ],
-//           borderRadius: BorderRadius.circular(40),
-//         ),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceAround,
-//           children: icons.asMap().entries.map((entry) {
-//             final index = entry.key;
-//             final icon = entry.value;
-//             final isSelected = currentIndex == index;
-
-//             return GestureDetector(
-//               onTap: () => onTap(index),
-//               child: AnimatedContainer(
-//                 duration: const Duration(milliseconds: 300),
-//                 padding:
-//                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-//                 decoration: BoxDecoration(
-//                   color: isSelected
-//                       ? Color.fromARGB(237, 12, 44, 94)
-//                       : Colors.transparent,
-//                   borderRadius: BorderRadius.circular(40),
-//                 ),
-//                 child: Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Icon(
-//                       item.icon.icon,
-//                       size: 32, // Icon size
-//                       color: isSelected ? Colors.white : Colors.grey,
-//                     ),
-//                     if (isSelected) // Show label only when selected
-//                       Padding(
-//                         padding: const EdgeInsets.only(
-//                             left: 8), // Spacing between icon and label
-//                         child: Text(
-//                           item.label ?? '',
-//                           style: const TextStyle(
-//                             fontSize: 14,
-//                             color: Colors.white,
-//                           ),
-//                         ),
-//                       ),
-//                   ],
-//                 ),
-//               ),
-//             );
-//           }).toList(),
-//         ),
-//       ),
-//     );
-//   }
-// }
 class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -489,14 +410,120 @@ class CustomBottomBar extends StatelessWidget {
 
 class WishlistController extends GetxController {
   final wishlist = <String>[].obs;
+  var isLoading = false.obs;
 
-  void addToWishlist(String productId) {
-    if (!wishlist.contains(productId)) {
-      wishlist.add(productId);
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    return token;
+  }
+
+  Future<void> fetchWishlist() async {
+    final token = await _getToken();
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse("https://admin.kushinirestaurant.com/api/get-wishlist/"),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        wishlist.assignAll(responseData['wishlist']);
+      }
+    } catch (error) {
+      Get.snackbar(
+        "Error",
+        "Failed to fetch wishlist: $error",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
     }
   }
 
-  void removeFromWishlist(String productId) {
-    wishlist.remove(productId);
+  Future<void> toggleWishlist(String productId) async {
+    if (isLoading.value) return; // Prevent multiple taps
+    isLoading.value = true;
+
+    final token = await _getToken();
+    if (token == null || token.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "You must be logged in to manage your wishlist.",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      isLoading.value = false;
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+            "https://admin.kushinirestaurant.com/api/add-remove-wishlist/"),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({"product_id": productId}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['message'] == "Product added to favorites") {
+          wishlist.add(productId);
+          Get.snackbar(
+            "Success",
+            "Product added to your wishlist.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else if (responseData['message'] ==
+            "Product removed from favorites") {
+          wishlist.remove(productId);
+          Get.snackbar(
+            "Removed",
+            "Product removed from your wishlist.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+          );
+        }
+      } else {
+        print("Server Response: ${response.body}");
+        if (response.statusCode == 500) {
+          Get.snackbar(
+            "Server Error",
+            "The server encountered an error while processing your request. Please try again later.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            "Error",
+            "Failed to update wishlist. Please try again.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white,
+          );
+        }
+      }
+    } catch (error) {
+      print("Error: $error");
+      Get.snackbar(
+        "Error",
+        "Failed to manage wishlist: $error",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

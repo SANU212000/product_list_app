@@ -108,6 +108,7 @@ class HomeScreen extends StatelessWidget {
                     imageUrl: product['featured_image'] ??
                         'https://admin.kushinirestaurant.com/media/Banner_.png',
                     avgRating: product['category']?.toString() ?? '0.0',
+                    productId: '',
                   );
                 },
               );
@@ -119,10 +120,10 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class WishlistController extends GetxController {
-  var inWishlist = false.obs;
+// class WishlistController extends GetxController {
+//   var inWishlist = false.obs;
 
-  void toggleWishlist() {
-    inWishlist.value = !inWishlist.value;
-  }
-}
+//   void toggleWishlist() {
+//     inWishlist.value = !inWishlist.value;
+//   }
+// }
